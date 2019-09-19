@@ -13,29 +13,36 @@ private:
 	short* arr; //array to hold digits of the number
 	int nDigits;//value keep track of how many digits the number has
 	bool sign; //boolean to keep track if number is positive or negative
+	
+	//deallocates dynamic memory
+	void destroy()
+	{
+		delete[] arr;
+	}
+	//sets all indices of array to 0
+	void initializeArray()
+	{
+		for(int i = 0; i < nDigits; i++)
+			arr[i] = 0;
+	}
 
 public:
 	
 	MyInt() //default constructor
 		:arr(new short[100]), nDigits(100), sign(positive)
-	{
-		for(int i = 0; i < nDigits; i++) //initialize values
-		{ arr[i] = 0; }
-	}
+	{ initializeArray(); }
 	MyInt(int nD) //constructor to manually set number of digits
 		:arr(new short[nD]), nDigits(nD), sign(positive)
-	{
-		for(int i = 0; i < nDigits; i++) //initialize values
-		{ arr[i] = 0; }
-	}
+	{ initializeArray(); }
 	MyInt(const MyInt& b) //copy constructor
 		:arr(new short[b.getNDigits()]), nDigits(b.getNDigits()), sign(b.getSign())
-	{
+	{ 
+		//copy over the array from the copied MyInt into this object's array
 		for(int i = 0; i < nDigits; i++)
-		{ arr[i] = b[i]; }
+			arr[i] = b[i];
 	}
 	~MyInt() //destructor
-	{ delete[] arr; }
+	{ destroy(); }
 	
 	int getNDigits() const
 	{ return nDigits; }
@@ -45,8 +52,7 @@ public:
 	void reset()
 	{
 		sign = positive; //positive sign
-		for(int i = 0; i < nDigits; i++) //all digits to 0
-		{ arr[i] = 0; }
+		initializeArray();
 	}
 	//prints entire array without formatting
 	void printSimple() const;
@@ -74,8 +80,7 @@ public:
 	}
 	MyInt& operator=(int b);
 	MyInt& operator=(const MyInt& b);
-	//this operator assumes both MyInts have the same number of digits
-	MyInt operator+(const MyInt& b) const;
+	MyInt operator+(const MyInt& b) const; //assummes both MyInts have same nDigits
 };
 
 MyInt MyIntFib(int n, int size);
@@ -83,8 +88,9 @@ MyInt MyIntFibHelper(int n, int size, vector<MyInt>& results);
 long long LongLongFib(int n);
 long long LongLongFibHelper(int n, vector<long long>& results);
 
-int main()
+int main(int argc, char* argv[])
 {
+	
 	int size, input;
 	cout << "\nHow many digits do you want for your fib number?\n> ";
 	cin >> size;
@@ -145,6 +151,9 @@ void MyInt::printFancy() const
 	{
 		if(!printDig) //haven't come up with a digit to print yet
 		{
+			
+			//we are either at our first non-zero value or the last index
+			//of the array so we start printing the values
 			if( arr[i] != 0 || i == 0 )
 				printDig = true;
 		}
@@ -184,10 +193,12 @@ MyInt& MyInt::operator=(const MyInt& b)
 	//avoid self-assignment
 	if(this != &b)
 	{
+		reset(); //clear previous info
+		
 		if( b.getNDigits() > nDigits ) //equalling a larger number
 		{
 			//resize array
-			delete[] arr;
+			destroy();
 			nDigits = b.getNDigits();
 			arr = new short[nDigits];
 		}
@@ -195,7 +206,9 @@ MyInt& MyInt::operator=(const MyInt& b)
 		sign = b.getSign(); //set sign
 		
 		//copy numbers over
-		for( int i = 0; i < nDigits; i++)
+		
+		int bNDigits = b.getNDigits(); //get number of digits in b
+		for(int i = 0; i < bNDigits; i++)
 		{
 			arr[i] = b[i];
 		}
@@ -217,8 +230,9 @@ MyInt MyInt::operator+(const MyInt& b) const
 		result[i] = val % 10; //put value of 1's place digit into array
 	}
 	
+	//let user know if addition is inaccurate due to overflow
 	if( carry != 0 )
-		cout << "\nThere was overflow of " << carry << "x10^" << nDigits;
+		cout << "\nThere was overflow.";
 	
 	return result;
 }
