@@ -5,4 +5,4 @@ fib.o: fib.cpp MyInt.h
 MyInt.o: MyInt.cpp MyInt.h
 	g++ -c MyInt.cpp MyInt.h
 clean:
-	erase fib.o MyInt.o
+	erase fib.o MyInt.o MyInt.h.gch
